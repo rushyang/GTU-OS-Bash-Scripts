@@ -3,14 +3,6 @@
 # Location of server, city, ip address owner, country and network range.
 # This is useful to track spammers or research purpose.
 # -------------------------------------------------------------------------
-# Copyright (c) 2006 nixCraft project <http://cyberciti.biz/fb/>
-# This script is licensed under GNU GPL version 2.0 or above
-# -------------------------------------------------------------------------
-# This script is part of nixCraft shell script collection (NSSC)
-# Visit http://bash.cyberciti.biz/ for more information.
-# -------------------------------------------------------------------------
-# Last updated on Mar/05/2010
-# -------------------------------------------------------------------------
  
 # Get all domains
 _dom=$@
