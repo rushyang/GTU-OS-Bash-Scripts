@@ -1,0 +1,410 @@
+************************GTU11************************
+while true; do
+	read -e -p "Enter first Directory's Absolute path: " path
+	[[ -d $path1 ]] && break
+		echo "Invalid path, Try Again!"
+done
+
+ls -Sl $path # this will list all files in descending order... 
+
+ls -Sl $path | tac # This will list all files in ascending order....
+
+#####or
+
+cd $path
+ls * -dplSr | grep -v '/$'
+cd $OLDPATH
+***********************GTU13***********************
+echo "Enter the filename: "
+read file2
+lim=`wc -l < $file2`
+echo $lim
+i=2
+while [ $i -le $lim ];
+do
+	temp=$(mktemp)
+	sed -n "$i"p < $file2 > $temp
+	roll=`cat $temp | awk '{print $1}'`
+	name=`cat $temp | awk '{print $2}'`
+	sub1=`cat $temp | awk '{print $3}'`
+	sub2=`cat $temp | awk '{print $4}'`
+	sub3=`cat $temp | awk '{print $5}'`
+	total=`echo $sub1+$sub2+$sub3 | bc`
+	per=`echo "scale=2; $total/3" | bc`
+	echo "====== Marksheet for Student \"$i\" ======="
+	echo -e "Roll\tName\tSubject1\tSubject2\tSubject3\t Grand Total \t Percentage"
+	echo -e "$roll \t $name \t $sub1 \t\t $sub2 \t\t $sub3 \t\t $total \t\t $per"
+	rm $temp
+	i=$(( $i+1 ))
+done
+***********************GTU14***********************
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# Last Updated: 13.08.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+: << -- 
+14. Write a script to make following file and directory management operations menu based:
+	Display current directory
+	List directory
+	Make directory
+	Change directory
+	Copy a file
+	Rename a file
+	Delete a file
+	Edit a file
+--
+
+while true; do
+
+
+sleep 1
+echo -e "\n"
+echo -e "	1. Display current directory
+	2. List directory
+	3. Make directory
+	4. Change directory
+	5. Copy a file
+	6. Rename a file
+	7. Delete a file
+	8. Edit a file
+	9. Exit
+	Enter your choice: \c"
+read selection
+clear
+
+case $selection in 
+
+1) pwd
+;;
+
+2) ls -l
+;;
+
+3) echo -n "Enter name of directory you wanna make: "
+read DIR
+mkdir "$DIR"
+if [ "$?" == "0" ]; then
+	echo "Directory $DIR made successfully!"
+	sleep 1
+	ls -l
+fi
+;;
+
+4) echo -n "Enter the Absolute Path to change the directory: "
+read -e apath
+cd $apath
+	if [ $? -eq 0 ]; then 
+		echo "Working path changed successfully!"
+		sleep 1
+		pwd
+	fi
+;;
+
+5) echo -n "Enter name of file: "
+read filename
+echo -n "Copy where? "
+read -e apath
+cp $filename $apath
+
+if [ $? -eq 0 ]; then
+	sleep 1
+	echo "File $filename copied successfully to $apath"
+fi
+;;
+
+6) echo -n "Enter old name of the file: "
+read oname
+echo -n "Enter new name: "
+read nname
+mv $oname $nname
+;;
+
+7) echo -n "Enter filename to delete: "
+read fdel
+if [ -f $fdel ]; then
+	rm -i $fdel
+fi
+;;
+
+8) echo -n "Enter filename to open it in Text Editor: "
+read filename
+vi $filename
+;;
+
+9) 
+clear
+echo "============ HAVE A NICE DAY ============"
+sleep 2 
+clear
+exit
+;;
+
+*) echo "Invalid choice, Please try again!: "
+;;
+
+esac
+done
+**************************GTU15********************
+#Write a script which reads a text file and output the following
+#Count of character, words and lines.
+#File in reverse.
+#Frequency of particular word in the file.
+#Lower case letter in place of upper case letter.
+
+read -e -p "Enter the filename: " file1 
+
+if [[ -f $file1 ]]; then
+	echo "Filename is \"$file1\". "
+	echo "Count of Characters: " `wc -m < "$file1"`
+	echo "Count of Words: " `wc -w < "$file1"`
+	echo "Count of Lines: " `wc -l < "$file1"`
+
+	echo "Reverse File is: "
+	rev "$file1" | tac
+
+	read -p "Enter the word which you want to count frequency of: "	aword
+	frq=`grep -c "$aword" < "$file1"`
+	echo "Frequency of word \"$aword\" is: $frq"
+
+	echo "Converting all lower case to upper case.."
+	tr [:upper:] [:lower:] < "$file1"
+fi
+
+
+*********************GTU16*********************
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# My Online Repository: http://github.com/rushyang/GTU-OS-Bash-Scriptss
+: << --
+This shell script will verify whether the user is logged in or not.
+--
+
+echo -e "Enter username to verify whether he is logged in or not: \c"
+read myname
+
+who | awk '{print $1}' > allusers_dummy.log
+sed -n /^$myname$/p allusers_dummy.log > finalusers_dummy.log
+SIZE=`ls -s finalusers_dummy.log | awk '{ print $1 }'`
+
+if [ $SIZE -eq 0 ]; then
+	echo "User is not logged in"
+else
+	echo "User: $myname is currently logged in"
+	sleep 2
+	who | sed -n /^$myname/p 
+fi
+
+rm allusers_dummy.log
+rm finalusers_dummy.log
+
+# OR
+
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# My Online Repository: http://github.com/rushyang/GTU-OS-Bash-Scripts
+
+echo -e "Enter name of user: \c"
+read myname
+
+
+finaluser=`who | awk '{print $1}' | sed -n /^$myname$/p | head -n1`
+if [ "$myname" = "$finaluser" ]; then
+	echo "User is currently logged in."
+	sleep 1
+	who | sed -n /^$myname/p 
+else
+	echo "User is not currently logged in. "
+fi
+
+
+**********************GTU17**********************
+# Write a script to perform operations on data file.
+# The file contains data for following fields.
+# EMP/NO, NAME, AGE, GENDER, DESIGNATION, BASIC/SALARY
+# Provide Menu Driven facility for: 
+# 1. Add Record
+# 2. Delete Record
+# 3. Modify Record
+# 4. View All Record
+# 5. Count Total Number of Records
+# 6. Exit
+
+datafile="/home/rushyang/Experiments/1911/datafile"
+echo "Datafile is: $datafile"
+cat $datafile
+
+while true; do
+
+read -p "
+1. Add Record
+2. Delete Record
+3. Modify Record
+4. View All Record
+5. Count All Number of Records
+6. Exit 
+Select Your Choice: " ch || exit
+
+case $ch in 
+1)
+	echo "Enter The Following data: "
+	read -p "EMP NO: " empno
+	read -p "EMP NAME: " empname
+	read -p "AGE: " age
+	read -p "GENDER: " gen
+	read -p "DESIGNATION: " des
+	read -p "BASIC SALARY: " basic
+	echo -e "$empno\t$empname\t\t$age\t$gen\t$des\t\t$basic\n" >> $datafile
+	tmp=$(mktemp tmp.XXXX)
+	awk NF < "$datafile" > "$tmp"
+	mv "$tmp" "$datafile"
+;;
+2)
+	temp=$(mktemp tmp.XXXXX)
+	read -p "Enter the employee id, which you want to delete: " empid
+	grep -v "^$empid" < $datafile > $temp
+	mv $temp $datafile
+;;
+3)
+	temp=$(mktemp tmp.XXXXX)
+	temp2=$(mktemp tmp.XXXXX)
+	temp3=$(mktemp tmp.XXXXX)
+	read -p "Enter the employee ID, you want to edit" empid
+	grep -v "$empid" < "$datafile" > $temp
+	grep "$empid" < "$datafile" > "$temp2"
+	read -p "Enter Field NO to edit: " fno
+	if test "$fno" = 1; then
+		olddata=`cat "$temp2" | awk '{print $1}'`
+		read -p "Enter new Empid" newempid 
+		sed s/$oldata/$newempid/g < "$temp2" > $temp3
+	elif test "$fno" = 2; then
+		olddata=`cat "$temp2" | awk '{print $2}'`
+		read -p "Enter new name" newname
+		sed s/$oldata/$newname/g < "$temp2" > $temp3
+	elif test "$fno" = 3; then
+		olddata=`cat "$temp2" | awk '{print $3}'`
+		read -p "Enter new age: " newage
+		sed s/$olddata/$newage/g < "$temp2" > $temp3
+	elif test "$fno" = 4; then
+		olddata=`cat "$temp2" | awk '{print $4}'`
+		read -p "Enter Gender: " newgen 
+		sed s/$oldata/$newgen/g < "$temp2" > $temp3
+	elif test "$fno" = 5; then
+		olddata=`cat "$temp2" | awk '{print $5}'`
+		read -p "Enter new Designation: " newdes
+		sed s/$oldata/$newdes/g < "$temp2" > $temp3
+	elif test "$fno" = 6; then
+		olddata=`cat "$temp2" | awk '{print $6}'`
+		read -p "Enter new salaray: " newsal
+		sed s/$oldata/$newsal/g < "$temp2" > $temp3
+	fi
+	mv "$temp3" "$temp2"
+	cat "$temp2" >> $temp
+	cat "$temp" | uniq > "$datafile"
+	rm "$temp"
+;;
+4)
+	echo "Datafile is: $datafile"
+	cat $datafile
+;;
+5)
+	temp=$(mktemp tmp.XXXXX)
+	awk NF < $datafile > $temp
+	mv $temp $datafile
+	lineno=`wc -l $datafile | awk '{print $1}'`
+	echo "Total Number of data in the file: $(( $lineno-1 ))"
+;;
+6)
+	exit
+;;
+*)
+	echo "Invalid Choice."
+;;
+esac
+done
+*******************GTU18*******************
+#Write A Script To Perform Following String Operations Using Menu:
+#COMPARE TWO STRINGS.
+#JOIN TWO STRINGS.
+#FIND THE LENGTH OF A GIVEN STRING.
+#OCCURRENCE OF CHARACTER AND WORDS
+#REVERSE THE STRING.
+
+read -p "Enter String 1: " str1
+read -p "Enter String 2: " str2
+
+while true; do
+read -p "	1. Compare Two Strings
+	2. Join Two String
+	3. Find the Length of a given string
+	4. Calcucalte the Occurances of a Characters and words
+	5. Reverse The String
+	6. Exit
+	Enter your Choice: " ch
+case $ch in 
+1)
+	if test "$str1" = "$str2"; then
+		echo "Both Strings are same"
+	else
+		echo "Both Strings are no same"
+	fi
+;;
+2)
+	echo "$str1$str2"
+;;
+3)
+	echo "Length of a string 1: ${#str1}"
+	echo "Length of a string 2: ${#str2}"
+;;
+4)
+	read -p "Enter the character to calculate the occurance: " char
+	read -p "Enter the word to calculate the occurance: " word
+	
+	filetemp1=$(mktemp)
+	echo "$str1" > $filetemp1
+	filetemp2=$(mktemp)
+	echo "$str2" > $filetemp2
+	temp1=$(mktemp)
+	temp2=$(mktemp)
+	grep -o "$char" < $filetemp1 > $temp1
+	echo "For string 1: "
+	echo "Occurace of a character: " `wc -l < $temp1 | awk '{print $1}'`
+	grep -o "$word" < $filetemp1 > $temp2
+	echo "Occurance of Word: " `wc -l < $temp2 | awk '{print $1}'`
+	echo "For string 2: "
+	grep -o "$char" < $filetemp2 > $temp1
+	echo "Occurace of a character: " `wc -l < $temp1 | awk '{print $1}'`
+	grep -o "$word" < $filetemp2 > $temp2
+	echo "Occurance of Word: " `wc -l < $temp2 | awk '{print $1}'`
+	rm $filetemp1 $filetemp2 $temp1 $temp2
+;;	
+5)
+	echo "Reverse strings are:" 
+	echo "$str1" | rev
+	echo "$str2" | rev
+;;
+6)
+	exit
+;;
+*)
+	echo "Invalid Choice.. Try again.." 
+;;
+esac
+done
+************GTU19************
+# Write a script to calculate gross salary for any number of employees
+# Gross Salary =Basic + HRA + DA.
+# HRA=10% and DA= 15%.
+
+read -p "How many employees data, you want to enter? " no
+i=1
+
+while [ $i -le "$no" ]; 
+do
+	read -p "Enter basic salary of Employee $i: " basic
+	HRA=`echo "scale=2; $basic*15/100" | bc`
+	DA=`echo "scale=2; $basic/10" | bc`
+	
+	echo "Gross Salary of employee $i: " `echo "$basic+$HRA+$DA" | bc`
+	# i=$(( $i+1 ))
+	i=`expr $i + 1`
+done

@@ -1,0 +1,227 @@
+***************GTU24***************
+#!/usr/bin/env bash
+# GTU24: Write a script to display the last modified file.
+# Code written By: Rushyang Darji
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+# Final Build: 19.10.2010
+
+while true; 
+do
+  # -e enables readline, which means you can use tab-completion. & -p prints whatever's written in "" before taking the path
+  # The ''|| exit'' makes the script exit if read returns false, which it
+  # will if the user hits Ctrl+C amongst other.
+	read -e -p "Enter Directory: " path || exit
+  # if path contains an existing directory, break out of this infinite loop.
+	[[ -d $path ]] && break
+	echo "Invalid Path, Try Again!"
+done
+
+cd $path	# cd $path is inevitable because of * in use of ls.
+ls * -dpltr | grep -v '/$' | tail -n1
+  # Here, observe '*' after ls. You must specify a wildcard pattern for indicating all files first. 
+  # This is because the -d option specifies that only directory names should listed. 
+  # Moreover, -p puts an indicator at the end of "directories", which will be stripped by grep inverse. 
+  # Once we have neglected directories, we can list(-l) "ONLY FILES" from current working directory sorted by it's modified time (-t) in reverse order (-r). The most last one will be fetched by tail. 
+
+cd $OLDPWD
+  # OLDPWD is the env var, which always remembers our "PREVIOUS WORKING DIRECTORY". Enter `env | grep OLDPWD` to see it. 
+  # 'cd -' will also lead us into last working directory. But then also we don't need to print it on Terminal while executing it.
+***************GTU25***************
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+# Final Build: 02.10.2010
+
+while true; do
+
+	read -e -p "Enter Directory: " path || exit
+	[[ -d $path ]] && break
+	echo "Invalid path! Try Again!"
+done
+path=${path%/}
+myargs=`grep -l -e "printf" -e "fprintf" $path/*.c | xargs`
+
+if [ $? -gt 1 ]; then		# grep exits with status 1 when no matches were found. 
+	echo -n "No Matches were found. "  && exit
+fi
+temp=$(mktemp tmp.XXXXXXXXX)
+for i in $myargs		# Here, grep has the exit status 0. 
+do
+	echo "Do you want to add '#include <stdio.h>' to $i?"
+	read S
+	case $S in
+	Y|y|YES|Yes|yes|yeah)
+		 sed '1i\
+#include<stdio.h>' "$i" > "$temp"		# i for insertion, 1 for 1st line. $i is the file to insert. and all output will be redirected to $temp 
+
+	mv "$temp" "$i"			# renaming $temp by over writing to $i
+
+	;;
+
+	n|N|NO|no|No|nope)
+		echo "Alright! Next.."
+		shift
+	;;
+
+	*)	
+		echo "Invalid input."
+	;;
+	esac
+
+done
+
+if [ -z $myargs ]; then
+	echo "No Matches were found. Try another Directory"
+else
+	clear
+	head -n5 $path/*.c | less 
+fi
+
+rm $temp
+
+########################   OR   ########################
+
+#!/usr/bin/env bash
+# GTU25: Write a shell script to add the statement #include <stdio.h> at the beginning of every C source file in current directory containing printf and fprintf.
+# Code written By: Rushyang Darji
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+# Final Build: 19.08.2010
+# If you want to rename and include all ".C" files too, Refer GTU26.sh
+myargs=`grep -l -e "printf" -e "fprintf" *.c | xargs`
+
+if [ $? -gt 1 ]; then		# grep has exit status 1 when no matches were found. 
+	echo -n "No Appropriate Matches were found. "
+fi
+
+for i in $myargs		# Here, grep has the exit status 0. 
+do
+	echo "Do you want to add '#include <stdio.h>' to $i?"
+	read S
+	case $S in
+	Y|y|YES|Yes|yes|yeah)
+		 sed '1i\
+#include<stdio.h>' "$i" > $$		# i for insertion, 1 for 1st line. $i is the file to insert. and all output will be redirected to $$ (or you can say temp... Actually $$ returns terminal id. but when output is directed to it, a file is made)
+	mv $$ $i			# renaming $$ by over writing to $i
+
+	;;
+
+	n|N|NO|no|No|nope)
+		echo "Alright!"
+		shift
+	;;
+
+	*)
+	;;
+	esac
+
+done
+
+if [ -z $myargs ]; then
+	echo "No Matches were found. Try another Directory"
+else
+	clear
+	head -n5 *.c | less 
+fi
+***************GTU26***************
+# !/usr/bin/env bash
+# 26. Interactive - non-interactive shell script to prompt and delete c files within the given or predefined current directory.
+#
+# Code Developed By: Rushyang Darji
+# Init. Build: 06.08.2010
+# Last Build: 19.10.2010
+
+N=$#
+ext=c
+if test "$N" -eq "0"; then
+	while true; do	# Same inifinite loop as we used in GTU24
+		read -e -p "Enter Path: " path || exit
+		[[ -d $path ]] && break
+		echo "Invalid Path, Try Again!"
+	done
+
+	path=${path%/} # Removes last / from the end of the path. Though, it's not compulsion to do so because /foo/bar and /foo//////bar is considered exactly the same!
+
+	for i in $path/*.C
+	do
+		if [ "$i" != $path/'*.C' ]; then # If there is no match, Value of i will be ''$path/*.C''. & That's why there is no need to rename.
+			mv "$i" "${i/.C/}".c	# Renames every .C files to .c, so that we can use it afterwards in same loop.
+			clear 
+		fi
+	done
+	
+	for i in $path/*."$ext"
+	do
+		if [ "$i" != "$path"/'*.c' ]; then # If there is no ".C FILE" exist in that directory, it will switch to else.
+		clear
+		echo "File is $i"
+		head -n10 "$i" | nl	# head for displaying First 10 lines, nl for numbering them on terminal.
+		sleep 1			# Halt for 1 second
+		rm -i "$i"		# -i for interactive prompt.
+		# Remember, "" around $i is super necessary! Because except it, you'll get an error with filenames containing spaces.
+		else
+			echo "There are no matching \"C\" files to Prompt in this directory."
+			sleep 2
+			clear=no
+		fi
+	done
+
+	if test "$clear" != "no"; then  # If clear=no then there are no C Files to display.
+		clear
+		echo "Remaining C files in the Directory..."
+		ls -1 $path/*.c			# 1 result per line (-1)
+	fi
+else	# Else part contains, where user passes the name of C files, which should exist in the current working directory as the parameter.
+	for i in $path/*.C
+	do
+		if [ "$i" != $path/'*.C' ]; then   # if There are no matches ie if there is no C file in given dir, 'i' will be ''$path/*.C''
+		mv "$i" "${i/.C/}".c	# Renames every .C files to .c
+		clear 
+		fi
+	done
+	
+	for i in $*			# When filenames are passed as parameters.
+	do	
+		clear
+		i="${i/.c/}"		# Removes an extension from file variable 'i' Only in the case of extension is also passed within the filename parameter. 
+		i="$(pwd)/$i.c"		# Makes i the complete path of a file, including extension..
+	# Last two lines are necessary because user, may and may not enter filename including extension.
+		if [ -f "$i" ]; then	# Checks for the existence of given filename, into pwd
+			echo "File name is $i"
+			head -n10 "$i" | nl	
+			sleep 1
+			rm -i "$i"
+		else			# Error for non-Existent files.
+			echo "There is no such a file with name: \"$i\" in current working directoy"
+			sleep 3
+		fi
+	done
+	clear
+	echo "Remaining C files in the Directory..."
+	ls -1 *.c
+	sleep 1
+fi
+
+
+***************GTU27***************
+# 27. Write a script that deletes all leading and trailing spaces in all lines in a file. Also remove blank lines
+# from a file. Locate lines containing only printf but not fprintf.
+# Rushyang Darji
+# Init Build: 29.11.2010
+# Last Build: 29.11.2010
+
+while true; do
+	read -e -p "Enter path of a file: " filep || exit
+	[[ -f "$filep" ]] && break
+	echo "This is not a valid file."
+done
+
+temp=$(mktemp temp.XXXXX)
+echo "After removing spaces... saved in $temp"
+# Or, sed -e '/^$/d' -e '/^[<spc><tab>]*$/d' < filep > $temp
+awk NF $filep > $temp
+cat $temp
+
+echo "Locating lines containing only printf but not fprintf.."
+grep -ve "fprintf" < wrongfile | grep -e "printf" 
+
+rm -i $temp

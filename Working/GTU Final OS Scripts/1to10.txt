@@ -1,0 +1,597 @@
+************************GTU2************************
+#!/usr/bin/env bash
+# GTU2b.sh This script will check whether entered number of string is pelindrome or not. (AIO script for numbers, strings, including special characters... So GTU21 and GTU22 is included here.)
+# Code written By: Rushyang Darji
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+echo -n "Enter string: "
+read string
+
+N=${#string}	# Total no of characters of a string.
+
+mid=$(($N/2))
+i=0
+
+while [ $i -lt $mid ]
+do
+	if [ "${string:$i:1}" != "${string: -$(($i+1)):1}" ];	then	# ${string:$i:1} will check 1 character from "ith" position from front. Note that i starts from 0.
+	# ${string: -$(($i+1)):1} will move from back. As i progresses, -$(($i+1)) value gets near to i. 
+	# As soon as Any two characters are found unmatched, It will prompt as not pelindrome, and exit quickly.
+		echo "String is not a pelindrome"
+		exit
+	else
+		i=$(($i+1))
+	fi
+done
+
+echo "String is pelindrome"
+
+: << -- OUTPUT 
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2b.sh 
+Enter string: rushyang
+String is not a pelindrome
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2b.sh 
+Enter string: 1234321
+String is pelindrome
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2b.sh 
+Enter string: 12abba21
+String is pelindrome
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2b.sh 
+Enter string: qwejkllkjewq
+String is pelindrome
+--
+
+#!/usr/bin/env bash
+# GTU2c.sh Accept number and check the number is even or odd, finds the length of the number, sum of the digits in the number.
+# Code written By: Rushyang Darji
+# Last Build: 10.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+echo -n "Enter Number: "  
+read no
+
+# Even or odd
+i=0
+no1=$((${no: -$(($i+1)):1})) # Grabs last digit of no and stores into no1.
+
+a=$(expr "$no1" % 2)  # or `expr "$no1" % 2` 
+if test "$a" -eq "0"; then
+	echo "Number is Even"
+else
+	echo "Number is Odd"
+fi
+
+# Length of number
+count=${#no}
+sum=0
+echo "No of Digits is: $count"
+
+# Sum of all digits
+while [ $count -gt 0 ]
+do
+	sum=`expr $sum + $((${no:$i:1}))`
+	count=$(($count-1))
+	i=$(($i+1))
+done
+
+
+echo "Sum of all digits: $sum"
+
+: << -- 
+		OUTPUT
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2c.sh 
+Enter Number: 123546
+Number is Even
+No of Digits is: 6
+Sum of all digits: 21
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2c.sh 
+Enter Number: 8634597 
+Number is Odd
+No of Digits is: 7
+Sum of all digits: 42
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2c.sh 
+Enter Number: 0
+Number is Even
+No of Digits is: 1
+Sum of all digits: 0
+--
+
+#!/usr/bin/env bash
+# GTU2d: Accept strings and replace a string by another string.
+# Code written By: Rushyang Darji
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+echo "Enter the Main string: "
+read string
+
+temp=$(mktemp)		# mktemp makes temporary file.
+echo $string > $temp
+echo "You entered..."	# just making sure, whether making temp was successful or not.
+cat $temp
+
+echo "Enter sub-string you want to replace..."
+read str1
+
+echo "Enter sub-string you want to relace with..."
+read str2
+
+sed -n s/$str1/$str2/gp < $temp	
+# s stands for "substitution", 
+# $str1 is what should be replaced. $str2 is from what $str1 should be replaced. 
+# g stands for "Global". Without it, only first match of $str1 will be replaced with $str2, and rest of $str1 will stay as it was.
+
+rm $temp # Removing temp file.
+
+: << -- 
+	OUTPUT
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU2d.sh 
+Enter the Main string: 
+The old fox jumps over the big rock.
+You entered...
+The old fox jumps over the big rock.
+Enter sub-string you want to replace...
+fox
+Enter sub-string you want to relace with...
+frog
+The old frog jumps over the big rock.
+--
+
+#!/usr/bin/env bash
+# GTU2e.sh Accept filename and displays last modification time if file exists, otherwise display appropriate message.
+# Code written By: Rushyang Darji
+# Last Build: 10.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+
+echo "Enter the filename"
+read FILE
+
+if [ -f $FILE ]; then
+	echo "The file exists."
+	echo "Last modification time is." 
+	ls -l $FILE | awk '{print $6" "$7}' # prints 6th and 7th column from tabular result of ls -l
+else
+	echo "The file does not exist"
+fi
+
+
+#!/usr/bin/env bash
+# GTU 2: Fetch the data from a file and display data into another file in reverse order
+# Code written By: Rushyang Darji
+# Last Build: 10.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+ls
+echo "Enter a filename: "
+read FILE
+
+temp=$(mktemp tmp.XXXXX)
+if [ -f $FILE ]; then
+	rev $FILE > $temp
+	echo "Data successfully fetched into $temp"
+	cat $temp
+else
+	echo "File does not exist"
+fi
+
+rm -i $temp
+************************GTU3************************
+#!/usr/bin/env bash
+# GTU3: Write a script to find the global complete path for any file.
+# Code written By: Rushyang Darji
+# Last Updated: 19.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+echo -e "Enter the filename to search in current directory: \c"
+read FILE
+
+args=`find . -name $FILE | xargs`	# xargs builds arguments from find, for using in "for loop"... Remember, you should never Parse result of "ls" in any case because unix allows every character to be used in naming files, even if a "new line character"... execute "touch $'A\nFile'" to make file and ls to know it. Google "parsing output of ls" to know more. 
+
+for i in $args	
+do 
+	if [ -f "$i" ]; then	
+		CPATH=`readlink -f "$i"`	# readlink returns the symbolic link, -f canonicalize by every parent directory recursively.
+		echo $CPATH
+	fi
+done
+
+noargs=${#args}					# noargs stores total number of arguments.
+if [ "$noargs" -eq "0" ]; then
+	echo "No such a file exists"
+fi
+
+
+
+************************GTU5************************
+#!/usr/bin/env bash
+# GTU 5 - Write a script to copy the file system from two directories to a new directory in such a way that only the latest file is copied in case there are common files in both the directories.
+# Code written By: Rushyang Darji
+# Last Build: 24.08.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+EXIT=n
+while [ $EXIT != y ]
+do
+	sleep 1
+	echo -e "\n"
+	echo -e "	1. Display PWD
+	2. Long Listing
+	3. Change Directory
+	4. Copy Newest File. 
+	5. Exit	
+	Enter Choice: \c"
+	read ch
+
+case $ch in 
+
+1) 
+	clear
+	pwd
+;;
+
+2) 	
+	clear
+	pwd
+	ls -l
+;;
+
+3) 
+	echo -n "Enter Absolute Path to change directory: "
+	read apath
+
+	cd $apath
+
+	if [ $? -eq 0 ]; then			# We can also check for availibility of directory before 'cd' command by 'test -d $apath' i.e. 'if [ -d $apath ]'
+		clear
+		echo "Working Directory Changed successfully to.."
+		sleep 1
+		pwd
+	else
+		clear
+		echo "Please check your PATH."
+	fi
+;;
+
+4) 
+	clear
+	echo "Enter filenames to copy. ( * - for ALL Files, ELSE Separate files by spaces )"
+	read allfiles
+	if [ -f $allfiles ]; then
+		echo "Enter Absolute path, where to copy these files: "
+		read -e cpath
+		if [ -d $cpath ]; then
+			cp -u "$allfiles" $cpath		# -u copies only when the SOURCE file is newer than the destination file or when the destination file is missing
+		else
+			echo "There is no such a directory!"
+		fi
+	else
+		echo "There is/are no such file(s)!"
+	fi
+;;
+
+5) 
+	clear 
+	echo -n "Exiting.."
+	sleep 1
+	echo -n "."	
+	sleep 1
+	echo -n "."
+	clear
+	exit
+;;
+
+*)
+	clear
+	echo "Invalid Choice"
+;;
+
+esac
+done
+
+
+************************GTU6************************
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# Last Build: 09.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+while true; do
+	read -e -p "Enter first Directory's Absolute path: " path1 || exit
+	[[ -d $path1 ]] && break
+		echo "Invalid path, Try Again!"
+done
+
+while true; do
+	read -e -p "Enter second Directory's Absolute path: " path2 || exit
+	[[ -d $path2 ]] && break
+		echo "Invalid path, Try Again!"
+done
+
+while true; do
+	read -e -p "Enter Third Directory's Path, to copy files in case of exact match: " path3 || exit
+	[[ -d $path3 ]] && break
+		echo "Invalid Path, Try, Again!"
+done
+
+temp=$(mktemp)
+for i in $path1/*
+do	
+	if [ -f "$i" ]; then
+	for j in $path2/*
+	do
+		if [ -f "$j" ]; then
+		base1=`basename "$i"`
+		base2=`basename "$j"`
+		if [ "$base1" = "$base2" ]; then
+			diff "$i" "$j" > $temp
+			
+			size=`ls -s $temp | awk '{print $1}'`
+			if [ "$size" -eq "0" ]; then
+				echo "File: \"$base1\" was found same in both directories."
+				cp "$i" "$path3"
+				echo "Copied to \"$path3\" successfully!"
+			fi
+		fi
+		fi
+	done
+	fi
+done
+
+rm $temp
+
+: << -- 
+	OUTPUT (Attempt 1)
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU6-2.sh 
+Enter first Directory's Absolute path: /home/rushyang/sldjf
+Invalid path, Try Again!
+Enter first Directory's Absolute path: /home/rushyang/Experiments/1510/mydir1/
+Enter second Directory's Absolute path: /home/rushyang/lsajlj
+Invalid path, Try Again!
+Enter second Directory's Absolute path: /home/rushyang/Experiments/1510/mydir2/
+Enter Third Directory's Path, to copy files in case of exact match: /home/rushyang/Experiments/1510/mydir3/
+File: "1" was found same in both directories.
+Copied to "/home/rushyang/Experiments/1510/mydir3/" successfully!
+File: "new file" was found same in both directories.
+Copied to "/home/rushyang/Experiments/1510/mydir3/" successfully!
+
+
+	OUTPUT (Attempt 2)
+rushyang@Maverick_Meerkat: GTU-MCA $ bash GTU6-2.sh 
+Enter first Directory's Absolute path: /home/rushyang/Experiments/1510/mydir1/
+Enter second Directory's Absolute path: /home/rushyang/Experiments/1510/mydir2/
+Enter Third Directory's Path, to copy files in case of exact match: /home/rushyang/Experiments/1510/mydir3/
+File: "1" was found same in both directories.
+Copied to "/home/rushyang/Experiments/1510/mydir3/" successfully!
+File: "new file" was found same in both directories.
+Copied to "/home/rushyang/Experiments/1510/mydir3/" successfully!
+-- 
+########################   OR    ########################
+
+#!/usr/bin/env bash
+# Code written By: Rushyang Darji
+# Last Build: 02.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+: << -- 
+GTU 6: Write a script to compare identically named files in two different directories and if they are same, copy
+one of them in a third directory
+
+Code Developed By: Rushyang Y Darji (rushyang@yahoo.co.in)
+Init Build: 04.08.2010
+Last Build: 15.10.2010
+v1.6
+--
+
+clear
+temp=$(mktemp tmp.XXXXXXXX)	#mktemp makes temporary file into /temp directory with r+w permissions only for creator.
+echo -n "Enter 1st Directory: "
+read dir1
+PATH1="$(pwd)/$dir1"	#Converted whole path of dir1 into PATH1 variable 
+echo "PATH1=$PATH1"
+main=$(pwd)
+if test -d $PATH1; then	#Test condition to make sure dir1 is a directory.
+	echo -n "Enter 2nd Directory: "
+	read dir2
+	PATH2="$(pwd)/$dir2"	#Same as Line 14
+	echo "PATH2=$PATH2"
+	if test -d $PATH2; then
+		cd $PATH1	#Secured for using for i loop.
+		for i in *
+		do
+			cd $PATH2	#Secured for using for j loop.
+			for j in *
+			do
+				if test "$i" == "$j"; then
+					cd $main		#Back to $(basedir)
+					cmp "$PATH1/$i" "$PATH2/$j" > $temp	
+					# cmp checks byte by byte.. can be little slower than 'diff' 
+					size=`ls -s $temp | awk '{print $1}'` # '-s' for listing size, and 'awk' for fetching size of $temp
+					if test "$size" == "0"; then	# if size of temporary file is 'ZERO', then both files are exactly same.
+						echo "File: \"$i\" was found same in both directories."
+						echo -n "Enter Directory name (must be in current working directory) to copy it: "
+						read dir3
+						PATH3="$(pwd)/$dir3"	#Same as Line 14
+						if test -d $PATH3; then	
+							cp -i "$PATH1/$i" "$PATH3"	# "$PATH2/$j" instead of "$PATH1/$i" will also do.
+						else
+							echo "There is no directory named $dir3 in $pwd"	#Line 41
+						fi
+					fi
+					
+				fi
+			done
+		done
+	else
+		echo "Invalid Directory Name for dir2."	#Error Message of missing dir2
+	fi
+else
+	echo "Invalid Directory Name for dir1."	#Error Message of missing dir3
+fi
+
+rm $temp	
+
+: << -- 
+rushyang@Maverick_Meerkat: 1510 $ ls mydir1/
+1  2  new file
+rushyang@Maverick_Meerkat: 1510 $ ls mydir2/
+1  new file  T
+rushyang@Maverick_Meerkat: 1510 $ ls mydir3/
+
+		OUTPUT (Attempt 1)
+Enter 1st Directory: asdf
+PATH1=/home/rushyang/Experiments/1510/asdf
+Invalid Directory Name for dir1.
+
+		OUTPUT (Attempt 2)
+Enter 1st Directory: mydir1
+PATH1=/home/rushyang/Experiments/1510/mydir1
+Enter 2nd Directory: mydir2
+PATH2=/home/rushyang/Experiments/1510/mydir2
+File: "1" was found same in both directories.
+Enter Directory name (must be in current working directory) to copy it: mydir3
+File: "new file" was found same in both directories.
+Enter Directory name (must be in current working directory) to copy it: mydir3
+
+		OUTPUT (Attempt 3)
+Enter 1st Directory: mydir1	
+PATH1=/home/rushyang/Experiments/1510/mydir1
+Enter 2nd Directory: mydir2
+PATH2=/home/rushyang/Experiments/1510/mydir2
+File: "1" was found same in both directories.
+Enter Directory name (must be in current working directory) to copy it: mydir3
+cp: overwrite `/home/rushyang/Experiments/1510/mydir3/1'? y
+File: "new file" was found same in both directories.
+Enter Directory name (must be in current working directory) to copy it: mydir3
+--
+
+************************GTU7************************
+#!/usr/bin/env bash
+# Code Developed By: Rushyang Darji
+# Last Build: 14.09.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+while true; do
+	read -e -p "Enter the Absolute Path: " path || exit
+	[[ -d $path ]] && break
+	echo "Invalid Directory!"
+done
+
+
+args=`find "$path" -empty -print0 | xargs -0`
+for i in $args
+do
+	if [ -f "$i" ]; then
+		rm -i "$i"
+	fi
+done
+
+************************GTU8************************
+#!/usr/bin/env bash
+# Write a script to display the name of those files (in the given directory) which are having multiple links.
+# Developed By: Rushyang Darji
+# Init Build: 15.10.2010
+# Last Build: 15.10.2010
+# v1.0
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+echo "Enter Absolute path of directory"
+read path
+
+if test -d $path; then
+	cd $path
+	for i in *
+	do
+		for j in *
+		do	
+			if test "$i" != "$j"; then
+				if test "$i" -ef "$j"; then
+					echo "$i" >> $$.temp
+				fi
+			fi			
+		done
+	done 
+	cat $$.temp | uniq
+	rm $$.temp
+	cd -
+else
+	echo "Check your path."
+fi
+
+###############   OR   ###############
+
+#!/usr/bin/env bash
+# Write a script to display the name of those files (in the given directory) which are having multiple links.
+# Developed By: Rushyang Darji
+# Init Build: 15.10.2010
+# Last Build: 15.10.2010
+# v1.0
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+temp=$(mktemp tmp.XXXXXXXXXX)
+while true; do
+	read -e -p "Ente the Absolute Path: " path || exit
+	[[ -d $path ]] && break
+	echo "Invalid Directory!"
+done
+
+for i in $path/*
+do
+	for j in $path/*
+	do
+		base1=`basename $i`
+		base2=`basename $j`
+		if test "$base1" != "$base2"; then
+			if test "$base1" -ef "$base2"; then
+				echo "$base1" >> $temp
+			fi
+		fi
+	done
+done
+
+cat $temp | uniq
+rm $temp
+
+************************GTU9************************
+#!/usr/bin/env bash
+# GTU 9
+# Code Developed by: Rushyang Darji
+# Last Updated: 14.10.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+# Remember, You should NEVER parse the output of "ls" command and use into scripts. Because UNIX filesystem allows all kind of characters to assign a filename, including "new line". For more info.. Google "parsing output of ls".
+# read -e enables Tab Completion which is way too easier than entering whole absolute path.
+read -e -p "Enter Absolute Path: " path || exit
+temp=$(mktemp)
+if test -d $path; then
+
+	for i in $path/*
+	do 	
+		if test -x "$i"; then
+			echo "$i" >> "$temp"
+		fi
+	done
+else
+	echo "Invalid Directory"
+fi
+
+cat $temp
+rm $temp
+************************GTU10************************
+#!/usr/bin/env bash
+# GTU10: Write a script to display the date, time and a welcome message (like Good Morning should be displayed with “a.m.” or “p.m.” and not in 24 hours notation.
+# Code written By: Rushyang Darji
+# Last Updated: 19.08.2010
+# Visit My Online Repository: "http://github.com/rushyang/GTU-OS-Bash-Scripts" for regular updates and more scripts.
+
+
+msg2=`date +%H`
+echo "Welcome $USERNAME!"
+time=`date +"%F  %I:%M:%S %p"`
+echo "Current Time is: $time"
+
+if [ "$msg2" -ge "5" ] && [ "$msg2" -lt "12" ]; then 
+	echo "Good Morning..!"
+elif [[ "$msg2" -ge "12" ]] && [[ "$msg2" -lt "17" ]]; then 
+	echo "Good Afternoon..!"
+elif [[ "$msg2" -ge "21" ]] && [[ "$msg2" -lt "19" ]]; then
+	echo "Good Evening..!"
+else
+	echo "Good Night..!"
+fi

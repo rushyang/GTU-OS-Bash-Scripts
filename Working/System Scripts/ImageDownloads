@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# This script will download whatever is put in clipboard. It is especially made with the purpose of downloading FB photos.
+
+echo '' | xclip -selection clipboard
+savedir='/media/Rushyang/wget_project/Stayaway'
+old=''
+while true; do
+	content=`xclip -selection clipboard -o`
+	if [[ "$old" != "$content" ]]; then
+		echo -c "New URL detected.. \n $content \n"
+		wget $content --directory-prefix="$savedir"
+		old=`echo $content`
+	fi
+	sleep 1
+done
