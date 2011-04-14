@@ -17,5 +17,5 @@ while true; do
 		echo '' | xclip -selection clipboard
 		#zenity --notification --timeout=1 && sleep 1
 	fi
-	sleep 1
+	sleep 1 #Vital to reduce the processor load
 done
