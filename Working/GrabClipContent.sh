@@ -2,6 +2,7 @@
 # This script constantly checks the clipboard content and if new entry is found, then will copy that into a specific file
 while true; do
 	targetfile=`zenity --entry --text="Enter the file name: " --title="Initiating Capture Clipboard Script.." --width=400`
+	[[ -z "$targetfile" ]] && exit
 	gather="$HOME/$targetfile"
 	[[ -f $gather ]] && dup=`zenity --question --text="This file already exists, Are you sure you want to continue?" --width=500; echo $?`
 	[[ "$dup" -ne "1" ]] && break
